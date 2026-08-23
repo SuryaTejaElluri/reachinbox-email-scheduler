@@ -1,39 +1,28 @@
-import { useEffect, useState } from "react";
-import api from "./services/api";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Navbar } from "./components/Navbar";
+import { CampaignListPage } from "./pages/CampaignListPage";
+import { CreateCampaignPage } from "./pages/CreateCampaignPage";
+import { CampaignDetailsPage } from "./pages/CampaignDetailsPage";
+import { EditCampaignPage } from "./pages/EditCampaignPage";
 
 function App() {
-  const [message, setMessage] = useState("Connecting to backend...");
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    const checkBackend = async () => {
-      try {
-        const response = await api.get("/api/health");
-
-        setMessage(response.data.message);
-      } catch (err) {
-        console.error(err);
-        setError("Could not connect to backend");
-      }
-    };
-
-    checkBackend();
-  }, []);
-
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="rounded-xl bg-white p-8 shadow-lg">
-        <h1 className="text-3xl font-bold text-gray-900">
-          ReachInbox Email Scheduler
-        </h1>
+    <BrowserRouter>
+      <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col antialiased">
+        <Navbar />
 
-        {error ? (
-          <p className="mt-3 text-red-600">{error}</p>
-        ) : (
-          <p className="mt-3 text-green-600">{message}</p>
-        )}
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Routes>
+            <Route path="/" element={<Navigate to="/campaigns" replace />} />
+            <Route path="/campaigns" element={<CampaignListPage />} />
+            <Route path="/campaigns/new" element={<CreateCampaignPage />} />
+            <Route path="/campaigns/:id" element={<CampaignDetailsPage />} />
+            <Route path="/campaigns/:id/edit" element={<EditCampaignPage />} />
+            <Route path="*" element={<Navigate to="/campaigns" replace />} />
+          </Routes>
+        </main>
       </div>
-    </div>
+    </BrowserRouter>
   );
 }
 
