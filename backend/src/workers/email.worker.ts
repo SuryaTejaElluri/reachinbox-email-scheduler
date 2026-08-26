@@ -217,11 +217,7 @@ export const emailWorker = new Worker<EmailJobData>(
   "email-queue",
   processEmail,
   {
-    connection: {
-      host: process.env.REDIS_HOST || "127.0.0.1",
-      port: Number(process.env.REDIS_PORT || 6379),
-    },
-
+    connection: bullRedisConnection,
     concurrency: workerConcurrency,
   }
 );
