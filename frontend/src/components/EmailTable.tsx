@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import type { ScheduledEmail } from "../types";
 import { EmailStatusBadge } from "./EmailStatusBadge";
+import { Search, RefreshCw, CheckCircle2 } from "lucide-react";
 
 interface Props {
   emails: ScheduledEmail[];
@@ -28,31 +29,34 @@ export const EmailTable: React.FC<Props> = ({ emails, onRefresh }) => {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-xs overflow-hidden">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden">
       {/* Table Header Controls */}
-      <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 bg-gray-50/50">
-        <h3 className="font-semibold text-gray-900 text-sm flex items-center gap-2">
-          <span>Scheduled Emails</span>
-          <span className="bg-indigo-100 text-indigo-700 text-xs px-2 py-0.5 rounded-full font-medium">
+      <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 bg-slate-50/70 dark:bg-slate-855/60">
+        <h3 className="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
+          <span>Scheduled Dispatch Ledger</span>
+          <span className="bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 text-xs px-2.5 py-0.5 rounded-full font-mono font-bold">
             {emails.length}
           </span>
         </h3>
 
         <div className="flex flex-wrap items-center gap-2">
           {/* Search */}
-          <input
-            type="text"
-            placeholder="Search recipient..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
-          />
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search recipient..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+            />
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
+          </div>
 
           {/* Filter */}
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+            className="px-3 py-1.5 text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
           >
             <option value="ALL">All Statuses</option>
             <option value="PENDING">PENDING</option>
@@ -65,12 +69,10 @@ export const EmailTable: React.FC<Props> = ({ emails, onRefresh }) => {
           {onRefresh && (
             <button
               onClick={onRefresh}
-              className="p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-white rounded-lg border border-transparent hover:border-gray-200 transition-colors"
+              className="p-2 text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-white dark:hover:bg-slate-800 rounded-xl border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-colors"
               title="Refresh Emails"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
+              <RefreshCw className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
@@ -80,49 +82,61 @@ export const EmailTable: React.FC<Props> = ({ emails, onRefresh }) => {
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
-            <tr className="bg-gray-100/70 border-b border-gray-200 text-gray-600 font-semibold uppercase tracking-wider">
-              <th className="py-3 px-4">Recipient</th>
-              <th className="py-3 px-4">Subject</th>
-              <th className="py-3 px-4">Status</th>
-              <th className="py-3 px-4">Scheduled At</th>
-              <th className="py-3 px-4">Sent At</th>
-              <th className="py-3 px-4">Retries</th>
-              <th className="py-3 px-4">Error</th>
+            <tr className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider">
+              <th className="py-3.5 px-4">Recipient</th>
+              <th className="py-3.5 px-4">Subject</th>
+              <th className="py-3.5 px-4">Status</th>
+              <th className="py-3.5 px-4">Scheduled At</th>
+              <th className="py-3.5 px-4">Sent At</th>
+              <th className="py-3.5 px-4">Retries</th>
+              <th className="py-3.5 px-4">Diagnostics</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 font-normal">
+          <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-normal">
             {filteredEmails.length === 0 ? (
               <tr>
-                <td colSpan={7} className="py-8 text-center text-gray-500 italic">
+                <td colSpan={7} className="py-8 text-center text-slate-400 italic">
                   No emails match your filter criteria.
                 </td>
               </tr>
             ) : (
               filteredEmails.map((email) => (
-                <tr key={email.id} className="hover:bg-gray-50/80 transition-colors">
-                  <td className="py-3 px-4 font-medium text-gray-900">{email.to}</td>
-                  <td className="py-3 px-4 text-gray-600 max-w-[200px] truncate">{email.subject}</td>
-                  <td className="py-3 px-4">
+                <tr key={email.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                  <td className="py-3.5 px-4 font-mono font-semibold text-slate-900 dark:text-white">
+                    {email.to}
+                  </td>
+                  <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300 max-w-[200px] truncate">
+                    {email.subject}
+                  </td>
+                  <td className="py-3.5 px-4">
                     <EmailStatusBadge status={email.status} />
                   </td>
-                  <td className="py-3 px-4 text-gray-500">{formatDate(email.scheduledAt)}</td>
-                  <td className="py-3 px-4 text-gray-500">{formatDate(email.sentAt)}</td>
-                  <td className="py-3 px-4 text-gray-500">
+                  <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400 font-mono">
+                    {formatDate(email.scheduledAt)}
+                  </td>
+                  <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400 font-mono">
+                    {formatDate(email.sentAt)}
+                  </td>
+                  <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400 font-mono">
                     {email.retryCount > 0 ? (
-                      <span className="text-amber-600 font-semibold">
+                      <span className="text-amber-600 dark:text-amber-400 font-bold">
                         {email.retryCount} / {email.maxRetries}
                       </span>
                     ) : (
                       "0"
                     )}
                   </td>
-                  <td className="py-3 px-4 max-w-[250px]">
+                  <td className="py-3.5 px-4 max-w-[250px]">
                     {email.error ? (
-                      <span className="text-red-600 font-mono text-[11px] truncate block" title={email.error}>
+                      <span className="text-rose-600 dark:text-rose-400 font-mono text-[11px] truncate block" title={email.error}>
                         ⚠️ {email.error}
                       </span>
+                    ) : email.status === "SENT" ? (
+                      <span className="text-emerald-500 font-semibold flex items-center gap-1 text-[11px]">
+                        <CheckCircle2 className="w-3 h-3" /> Dispatched
+                      </span>
                     ) : (
-                      <span className="text-gray-400">—</span>
+                      <span className="text-slate-400">—</span>
                     )}
                   </td>
                 </tr>

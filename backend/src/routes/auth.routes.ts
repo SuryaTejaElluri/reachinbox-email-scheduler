@@ -40,6 +40,16 @@ router.get(
       email: user.email,
     });
 
+    // Redirect to frontend with token (browser-based OAuth flow)
+    const frontendUrl = process.env.FRONTEND_URL;
+    if (frontendUrl) {
+      const callbackUrl = new URL("/auth/callback", frontendUrl);
+      callbackUrl.searchParams.set("token", token);
+      callbackUrl.searchParams.set("userId", user.id);
+      return res.redirect(callbackUrl.toString());
+    }
+
+    // Fallback: return JSON if FRONTEND_URL is not configured
     return res.status(200).json({
       success: true,
       message: "Google authentication successful",

@@ -1,4 +1,5 @@
 import { prisma } from "../config/prisma";
+import { emailQueue } from "../queues/email.queue";
 
 export interface CreateCampaignData {
   subject: string;
@@ -33,8 +34,9 @@ export const createCampaignService = async (
 
   const recipients = data.recipients || [];
 
-  return prisma.$transaction(async (tx) => {
-    const campaign = await tx.campaign.create({
+  // Create campaign + scheduled email records in a transaction
+  const campaign = await prisma.$transaction(async (tx) => {
+    const camp = await tx.campaign.create({
       data: {
         subject: data.subject,
         body: data.body,
@@ -48,7 +50,7 @@ export const createCampaignService = async (
     if (recipients.length > 0) {
       await tx.scheduledEmail.createMany({
         data: recipients.map((to: string, index: number) => ({
-          campaignId: campaign.id,
+          campaignId: camp.id,
           to,
           subject: data.subject,
           body: data.body,
@@ -60,8 +62,50 @@ export const createCampaignService = async (
       });
     }
 
-    return campaign;
+    return camp;
   });
+
+  // After transaction commits, enqueue BullMQ jobs for each email
+  if (recipients.length > 0) {
+    const createdEmails = await prisma.scheduledEmail.findMany({
+      where: { campaignId: campaign.id },
+      orderBy: { scheduledAt: "asc" },
+    });
+
+    for (const email of createdEmails) {
+      const delay = Math.max(
+        0,
+        (email.scheduledAt?.getTime() ?? Date.now()) - Date.now()
+      );
+
+      await emailQueue.add(
+        "send-email",
+        {
+          scheduledEmailId: email.id,
+          recipient: email.to,
+          subject: email.subject,
+          body: email.body,
+          campaignId: email.campaignId,
+          userId: data.userId,
+        },
+        {
+          delay,
+          jobId: `email-${email.id}`,
+          attempts: 3,
+          backoff: {
+            type: "exponential",
+            delay: 30_000,
+          },
+        }
+      );
+    }
+
+    console.log(
+      `[Campaign] Enqueued ${createdEmails.length} BullMQ jobs for campaign ${campaign.id}`
+    );
+  }
+
+  return campaign;
 };
 
 export const getCampaignByIdService = async (id: string) => {

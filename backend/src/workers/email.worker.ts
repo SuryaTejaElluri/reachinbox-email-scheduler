@@ -83,7 +83,9 @@ const processEmail = async (
     await prisma.scheduledEmail.updateMany({
       where: {
         id: scheduledEmailId,
-        status: "SCHEDULED",
+        status: {
+          in: ["SCHEDULED", "PENDING"],
+        },
       },
 
       data: {

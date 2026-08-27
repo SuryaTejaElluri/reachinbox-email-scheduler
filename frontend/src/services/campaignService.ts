@@ -6,7 +6,7 @@ export const campaignService = {
   demoLogin: async (email?: string, name?: string): Promise<{ token: string; user: User }> => {
     const res = await api.post("/api/auth/demo", { email, name });
     if (res.data.token) {
-      localStorage.getItem("reachinbox_token") || localStorage.setItem("reachinbox_token", res.data.token);
+      localStorage.setItem("reachinbox_token", res.data.token);
     }
     return res.data;
   },

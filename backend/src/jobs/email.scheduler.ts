@@ -1,1 +1,1 @@
-export { startEmailScheduler, processScheduledEmails } from "./emailScheduler";
+export { recoverPendingEmails } from "./emailScheduler";

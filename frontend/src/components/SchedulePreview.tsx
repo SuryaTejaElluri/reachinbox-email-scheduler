@@ -1,4 +1,5 @@
 import React from "react";
+import { Clock, ArrowRight } from "lucide-react";
 
 interface Props {
   startTime: string;
@@ -15,8 +16,10 @@ export const SchedulePreview: React.FC<Props> = ({
 }) => {
   if (!startTime || recipientCount === 0) {
     return (
-      <div className="p-4 bg-gray-50 border border-dashed border-gray-300 rounded-lg text-center text-xs text-gray-500">
-        Enter start time and add recipients to view the scheduling timeline preview.
+      <div className="p-6 bg-slate-50 dark:bg-slate-850 border border-dashed border-slate-300 dark:border-slate-700 rounded-2xl text-center text-xs text-slate-500 dark:text-slate-400 space-y-1">
+        <Clock className="w-5 h-5 mx-auto text-slate-400 opacity-60" />
+        <p className="font-semibold">Timeline Simulation</p>
+        <p className="text-[11px]">Select a start time and add recipients to see real-time calculated dispatch offsets.</p>
       </div>
     );
   }
@@ -24,8 +27,8 @@ export const SchedulePreview: React.FC<Props> = ({
   const baseDate = new Date(startTime);
   if (isNaN(baseDate.getTime())) {
     return (
-      <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-xs text-red-600">
-        Invalid start time date provided.
+      <div className="p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-2xl text-xs text-rose-600 dark:text-rose-400">
+        Invalid start time date format provided.
       </div>
     );
   }
@@ -38,29 +41,33 @@ export const SchedulePreview: React.FC<Props> = ({
     previewItems.push({ index: i + 1, time: itemTime });
   }
 
-  // Calculate estimated completion time considering delay and hourlyLimit
   const totalDelaySeconds = (recipientCount - 1) * delaySeconds;
   const estimatedEndDate = new Date(baseDate.getTime() + totalDelaySeconds * 1000);
-
   const durationMinutes = Math.ceil(totalDelaySeconds / 60);
 
   return (
-    <div className="p-4 bg-slate-900 text-white rounded-xl shadow-md space-y-3">
-      <div className="flex items-center justify-between border-b border-slate-700 pb-2">
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-indigo-400">
-          Scheduling Preview
-        </h4>
-        <span className="text-xs text-slate-400 font-mono">
-          {hourlyLimit} emails/hour cap
+    <div className="p-5 bg-slate-900 dark:bg-slate-950 text-white rounded-3xl border border-slate-800 shadow-xl space-y-4">
+      <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className="flex items-center gap-2">
+          <Clock className="w-4 h-4 text-indigo-400" />
+          <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-300">
+            Dispatch Queue Simulation
+          </h4>
+        </div>
+        <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full bg-slate-800 text-indigo-300 border border-slate-700">
+          {hourlyLimit}/hr cap
         </span>
       </div>
 
-      <div className="space-y-1.5 font-mono text-xs">
+      <div className="space-y-2 font-mono text-xs">
         {previewItems.map((item) => (
-          <div key={item.index} className="flex justify-between items-center text-slate-300">
-            <span>Email {item.index}</span>
-            <span className="text-slate-400">→</span>
-            <span className="text-emerald-400">
+          <div
+            key={item.index}
+            className="flex justify-between items-center p-2 rounded-xl bg-slate-800/60 border border-slate-800 text-slate-300"
+          >
+            <span className="text-slate-400 font-bold text-[11px]">Email #{item.index}</span>
+            <ArrowRight className="w-3.5 h-3.5 text-slate-600" />
+            <span className="text-emerald-400 font-semibold">
               {item.time.toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -72,21 +79,21 @@ export const SchedulePreview: React.FC<Props> = ({
 
         {recipientCount > maxPreview && (
           <p className="text-slate-500 text-[11px] pt-1 italic text-center">
-            ... and {recipientCount - maxPreview} more email{recipientCount - maxPreview > 1 ? "s" : ""}
+            ... and {recipientCount - maxPreview} more queued email{recipientCount - maxPreview > 1 ? "s" : ""}
           </p>
         )}
       </div>
 
-      <div className="pt-2 border-t border-slate-800 grid grid-cols-2 gap-2 text-xs">
-        <div>
-          <span className="text-slate-400 block text-[10px] uppercase">Est. Duration</span>
-          <span className="font-semibold text-slate-200">
+      <div className="pt-2 border-t border-slate-800 grid grid-cols-2 gap-3 text-xs">
+        <div className="p-2.5 rounded-xl bg-slate-800/40">
+          <span className="text-slate-400 block text-[10px] uppercase font-bold">Est. Duration</span>
+          <span className="font-bold text-slate-100 font-mono">
             {durationMinutes < 1 ? "< 1 min" : `~${durationMinutes} mins`}
           </span>
         </div>
-        <div>
-          <span className="text-slate-400 block text-[10px] uppercase">Est. Completion</span>
-          <span className="font-semibold text-slate-200">
+        <div className="p-2.5 rounded-xl bg-slate-800/40">
+          <span className="text-slate-400 block text-[10px] uppercase font-bold">Completion Time</span>
+          <span className="font-bold text-slate-100 font-mono">
             {estimatedEndDate.toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
